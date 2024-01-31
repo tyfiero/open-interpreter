@@ -2,7 +2,10 @@ import json
 import os
 import subprocess
 import time
+import nbformat
 
+from datetime import datetime
+from nbformat.v4 import new_notebook, new_code_cell, new_markdown_cell
 from ..core.utils.system_debug_info import system_info
 from .utils.count_tokens import count_messages_tokens
 from .utils.display_markdown_message import display_markdown_message
@@ -172,6 +175,38 @@ def handle_count_tokens(self, prompt):
 
     display_markdown_message("\n".join(outputs))
 
+def get_desktop_path():
+    # For Windows
+    if os.name == 'nt':
+        desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+    # For MacOS and Linux
+    else:
+        desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop')
+    return desktop
+
+def export_pynb(self):
+    desktop = get_desktop_path()
+    formatted_time = current_time.strftime("%m-%d-%y-%I:%M%p")
+    filename = f"open-interpreter-{formatted_time}.ipynb"
+    notebook_path = os.path.join(desktop, filename)
+    nb = new_notebook()
+    cells = []
+    
+    for msg in self.messages:
+        if msg['role'] == 'user' or msg['role'] == 'assistant':
+            if msg['type'] == 'message':
+                cells.append(new_markdown_cell(msg['content']))
+            elif msg['type'] == 'code':
+                cells.append(new_code_cell(msg['content']))
+            # Add more conditions here if you have other types of messages
+    
+    nb['cells'] = cells
+    
+    with open(notebook_path, 'w', encoding='utf-8') as f:
+        nbformat.write(nb, f)
+    
+    display_markdown_message(f"Jupyter notebook file exported to {os.path.abspath(notebook_path)}")
+
 
 def handle_magic_command(self, user_input):
     # Handle shell
@@ -191,6 +226,7 @@ def handle_magic_command(self, user_input):
         "undo": handle_undo,
         "tokens": handle_count_tokens,
         "info": handle_info,
+        "export_pynb": export_pynb,
     }
 
     user_input = user_input[1:].strip()  # Capture the part after the `%`
