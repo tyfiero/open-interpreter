@@ -58,6 +58,7 @@ def handle_help(self, arguments):
         "%tokens [prompt]": "EXPERIMENTAL: Calculate the tokens used by the next request based on the current conversation's messages and estimate the cost of that request; optionally provide a prompt to also calulate the tokens used by that prompt and the total amount of tokens that will be sent with the next request",
         "%help": "Show this help message.",
         "%info": "Show system and interpreter information",
+        "%jupyter": "Export the conversation to a Jupyter notebook file",
     }
 
     base_message = ["> **Available Commands:**\n\n"]
@@ -184,8 +185,9 @@ def get_desktop_path():
         desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop')
     return desktop
 
-def export_pynb(self):
+def jupyter(self):
     desktop = get_desktop_path()
+    current_time = datetime.now()
     formatted_time = current_time.strftime("%m-%d-%y-%I:%M%p")
     filename = f"open-interpreter-{formatted_time}.ipynb"
     notebook_path = os.path.join(desktop, filename)
@@ -226,7 +228,7 @@ def handle_magic_command(self, user_input):
         "undo": handle_undo,
         "tokens": handle_count_tokens,
         "info": handle_info,
-        "export_pynb": export_pynb,
+        "jupyter": jupyter,
     }
 
     user_input = user_input[1:].strip()  # Capture the part after the `%`
