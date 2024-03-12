@@ -21,7 +21,7 @@ class Mail:
         too_many_emails_msg = ""
         if number > 50:
             number = min(number, 50)
-            too_many_emails_msg = "This method is limited to 10 emails, returning the first 10: "
+            too_many_emails_msg = "This method is limited to 50 emails, returning the first 10: "
         # This is set up to retry if the number of emails is less than the number requested, but only a max of three times
         retries = 0  # Initialize the retry counter
         while retries < 3:
